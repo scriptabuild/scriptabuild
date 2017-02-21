@@ -8,22 +8,15 @@ let initialState = {
 	projects: []
 };
 
-function addProject(state = initialState, action){
-	switch(action.type){
-		case "ADD_PROJECT":
-			return {...state,
-				projects: [...state.projects, action.project]
-			};
+ds.setInitialState(initialState);
 
-		default:
-			return state;
-	}
-}
-
-ds.registerEventhandler(addProject);
+ds.registerEventhandler("ADD_PROJECT", (state, action) => {
+	return { ...state,
+		projects: [...state.projects, action.project]
+	};
+});
 
 ds.restore();
-
 
 // ds.dispatch({type:"ADD_PROJECT", project: {name: "new project no. 16"}});
 // ds.dispatch({type:"ADD_PROJECT", project: {name: "new project no. 17"}});
