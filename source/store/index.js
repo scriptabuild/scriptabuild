@@ -1,14 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-// external surface of Store
-
-const initStore = (folder, createInstance) => {
-	let underlyingStore = new UnderlyingStore(folder, createInstance);
-	return underlyingStore;
-};
-
-module.exports = initStore;
+// helper functions
 
 function getLatestFileNo(files, ext) {
 	return files
@@ -23,7 +16,9 @@ function camelToPascalCase(camelcaseString) {
 }
 
 
-function UnderlyingStore(folder, createInstance) {
+// constructor function
+
+function Store(folder, createInstance) {
 
 	let instance = undefined;
 
@@ -33,38 +28,41 @@ function UnderlyingStore(folder, createInstance) {
 	let latestLogOrSnapshotNo = undefined;
 	let eventlog = [];
 
-	restore();
+	init();
 
-	//
+	// private methods
 
-	function registerEventhandlers(newEventhandlers){
+	function registerEventhandlers(newEventhandlers) {
 		eventhandlers = newEventhandlers
 	};
 
-	function registerSnapshothandlers(newSnapshothandlers){
+	function registerSnapshothandlers(newSnapshothandlers) {
 		snapshothandlers = newSnapshothandlers
 	};
 
-	function restore() {
-		if(!instance) instance = createInstance(dispatch, registerEventhandlers, registerSnapshothandlers);
-
-		// determine files...
+	function init() {
+		if (!instance) instance = createInstance(dispatch, registerEventhandlers, registerSnapshothandlers);
 
 		let files = fs.readdirSync(folder);
 		let latestSnapshotNo = getLatestFileNo(files, ".snapshot");
 		let latestLogNo = getLatestFileNo(files, ".log");
 		latestLogOrSnapshotNo = Math.max(latestSnapshotNo, latestLogNo)
 
-		// read files...
+		restore(latestSnapshotNo);
+		replay(latestSnapshotNo + 1, latestLogNo);
+	}
 
-		if (snapshothandlers, latestSnapshotNo) {
-			let snapshotfile = path.resolve(folder, latestSnapshotNo + ".snapshot");
+	function restore(snapshotNo) {
+		if (snapshothandlers, snapshotNo) {
+			let snapshotfile = path.resolve(folder, snapshotNo + ".snapshot");
 			console.log("Reading snapshot file:", snapshotfile)
 			let snapshotContents = JSON.parse(fs.readFileSync(snapshotfile).toString());
 			snapshothandlers.restoreFromSnapshot(snapshotContents);
 		}
+	}
 
-		for (let logNo = latestSnapshotNo + 1; logNo <= latestLogNo; logNo++) {
+	function replay(fromLogNo, toLogNo) {
+		for (let logNo = fromLogNo; logNo <= toLogNo; logNo++) {
 			let logfile = path.resolve(folder, logNo + ".log");
 			console.log("Reading log file:", logfile);
 
@@ -76,7 +74,6 @@ function UnderlyingStore(folder, createInstance) {
 		}
 	}
 
-
 	function handleEvent(eventname, event) {
 		let eventhandlername = "on" + camelToPascalCase(eventname);
 		let eventhandler = eventhandlers[eventhandlername];
@@ -87,7 +84,7 @@ function UnderlyingStore(folder, createInstance) {
 		return eventhandler(event);
 	}
 
-	function dispatch(eventname, event){
+	function dispatch(eventname, event) {
 		eventlog.push({
 			eventname,
 			event
@@ -106,8 +103,10 @@ function UnderlyingStore(folder, createInstance) {
 		}
 	}
 
+	// public methods
+
 	this.snapshot = () => {
-		if(!instance) restore();
+		if (!instance) init();
 
 		let state = snapshothandlers.createSnapshotData();
 
@@ -118,27 +117,39 @@ function UnderlyingStore(folder, createInstance) {
 	}
 
 	this.withRetries = (action, maxRetries = 5) => {
-		let retryCount = 0;
 		let isCancelled = false;
 
-		while (retryCount < maxRetries) {
-			if(!instance) restore();
+		let retryCount = 0;
+		while(retryCount < maxRetries) {
+			if (!instance) init();
 
-			action(instance, () => { isCancelled = true; });
-			try {
-				if (isCancelled) {
-					instance = undefined;
-					return;
-				} else {
-					save();
-				}
+			action(instance, () => {
+				isCancelled = true;
+			});
+			if (isCancelled) {
+				instance = undefined;
+				eventlog = [];			
 				return this;
-			} catch (err) {
-				console.log("ERROR:", err);
-				retryCount++;
+			} else {
+				try {
+					save();
+					return this;
+				} catch (err) {
+					retryCount++;
+				}
 			}
-			// TODO: incremental delay?
 		}
 		throw new Error("Failed the max number of retries. Aborting and rolling back action.");
-	}	
+	}
 }
+
+
+// external surface of Store
+// Parameter "folder": folder to store logs and snapshots to
+// Parameter "createInstance": creator function, signature: (dispatch, registerEventhandler, registerSnapshothandler)
+const initStore = (folder, createInstance) => {
+	let underlyingStore = new Store(folder, createInstance);
+	return underlyingStore;
+};
+
+module.exports = initStore;
