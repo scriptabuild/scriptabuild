@@ -44,8 +44,14 @@
     "webpack-node-externals": "^1.5.4"
   },
   "dependencies": {
+    "@aeinbu/bodyparser": "^0.0.1",
+    "@aeinbu/eventstore": "0.0.2",
     "commander": "^2.9.0",
+    "cors": "^2.8.1",
+    "express": "^4.15.2",
     "fs": "^0.0.1-security",
-    "fs-extra": "^2.0.0"
+    "fs-extra": "^2.0.0",
+    "q": "^1.4.1",
+    "ws": "^2.2.0"
   }
 }
