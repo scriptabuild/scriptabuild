@@ -1,0 +1,81 @@
+[
+	{
+		"name": "Script-a-build",
+		"source": {
+			"provider": "git",
+			"url": "https://github.com/scriptabuild/arjanpoc",
+			"branch": "master"
+		},
+		"run": [
+			"npm update",
+			"npm run ci-task"
+		]
+	},
+	{
+		"name": "Oktaset CFP Self Service",
+		"source": {
+			"provider": "git",
+			"url": "https://github.com/scriptabuild/samples.git",
+			"branch": "master"
+		},
+		"run": [
+			{
+				"cmd": "npm",
+				"args": [
+					"update"
+				],
+				"options": {
+					"cwd": "%build%"
+				}
+			},
+			"npm update",
+			"sh %build%/batchfile",
+			"node %build%/build-node-app.js"
+		]
+	},
+	{
+		"name": "Oktaset CFP Admin",
+		"source": {
+			"provider": "git",
+			"url": "https://github.com/scriptabuild/samples.git",
+			"branch": "master"			
+		},
+		"run": [
+			"npm update",
+			"node %scripts%/build-node-app.js"
+		]
+	},
+	{
+		"name": ".NET Core playground",
+		"source": {
+			"provider": "filesystem",
+			"path": "/users/arjan/Document/dev/oktaset-cfp-admin",
+			"branch": "master"
+		},
+		"run": [
+			{
+				"cmd": "node",
+				"args": [
+					"%scripts%/build-cs-app.js"
+				]
+			}
+		]
+	},
+	{
+		"name": "Built by shell script project",
+		"source": {
+			"provider": "git",
+			"url": "https://github.com/scriptabuild/samples.git",
+			"branch": "master"
+		},
+		"run": [
+			{
+				"cmd": "$scripts$/batchfile",
+				"args": [],
+				"options": {
+					"cwd": "%scripts%"
+				}
+			}
+		]
+	}
+]

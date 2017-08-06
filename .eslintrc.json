@@ -1,0 +1,24 @@
+{
+	"extends": "eslint:recommended",
+	"env": {
+		"browser": false,
+		"commonjs": true,
+		"es6": true,
+		"node": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 2017,
+		"ecmaFeatures": {
+			"experimentalObjectRestSpread": true,
+			"jsx": false
+		},
+		"sourceType": "module"
+	},
+	"rules": {
+        "no-irregular-whitespace": "off",
+        "no-console": "off",
+        "radix": "warn",
+        "no-eval": "warn",
+		"no-with": "warn"
+	}
+}
