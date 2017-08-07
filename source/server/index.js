@@ -2,7 +2,7 @@ const http = require("http");
 const url = require("url");
 const path = require("path")
 
-const { load, save } = require("./fs-utils");
+const { load, save, folder } = require("./fs-utils");
 
 const express = require("express");
 const cors = require("cors");
@@ -67,16 +67,17 @@ const configuration = {
 };
 
 async function getSystemModel() {
-    let folder = path.resolve(configuration.systemFolder, "system-log");
-    let store = await defineStore(folder);
+    let systemFolder = path.resolve(configuration.systemFolder, "system-log");
+    let store = await defineStore(systemFolder);
     let model = store.defineModel(systemModelDefinition);
 
     return model;
 }
 
 async function getProjectModel(projectId) {
-    let folder = path.resolve(configuration.systemFolder, "projects", projectId);
-    let store = await defineStore(folder);
+	let projectFolder = path.resolve(configuration.systemFolder, "projects", projectId, "project-log");
+	await folder(projectFolder).ensure();
+    let store = await defineStore(projectFolder);
     let model = store.defineModel(projectModelDefinition);
 
     return model;
@@ -148,7 +149,11 @@ app.get("/api/project-log/:projectName/:buildNo?",
 
 app.post("/api/project-build/:projectname",
     function(req, resp) {
-        //TODO: start build
+		//TODO: start build
+		// clone or checkout
+		// update deps (npm, nuget etc)
+		// run scripts to build etc
+		// log status
     });
 
 app.post("/api/hook/github/",

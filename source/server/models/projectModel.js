@@ -1,80 +1,45 @@
-const { readonlyProxy } = require("@scriptabuild/readonlyproxy");
+const { readonlyProxy } = require("@scriptabuild/eventstore");
 
 function DomainModel(dispatch, aggregator) {
 
     this.getProjectSummary = () => ({
-        name: "N/I",
         current: {
             buildNo: "N/I",
             buildStatus: "N/I",
             timestamp: "N/I"
         },
-        latestCompleted: {
-            buildNo: "N/I",
-            buildStatus: "N/I",
-            timestamp: "N/I"
-        },
-        latestSuccesfull: {
-            buildNo: "N/I",
-            buildStatus: "success",
-            timestamp: "N/I"
-        },
-        trend: "Cloudy"
+        latestCompleted: aggregator.data.builds[0],
+        latestSuccesfull: aggregator.data.builds.find(build => build.status === "success")
     });
 
     this.getDetails = ({ maxNumberOfBuilds }) => ({
-        name: "N/I",
-        current: {
-            buildNo: "N/I",
-            buildStatus: "N/I",
-            commitHash: "N/I",
-            timestamp: "N/I",
-            duration: "N/I",
-            startedBy: "N/I"
-        },
-        latest: [{
-            buildNo: "N/I",
-            buildStatus: "N/I",
-            commitHash: "N/I",
-            timestamp: "N/I",
-            duration: "N/I",
-            startedBy: "N/I"
-        }, {
-            buildNo: "N/I",
-            buildStatus: "N/I",
-            commitHash: "N/I",
-            timestamp: "N/I",
-            duration: "N/I",
-            startedBy: "N/I"
-        }],
-        latestSuccesfull: {
-            buildNo: "N/I",
-            buildStatus: "success",
-            commitHash: "N/I",
-            timestamp: "N/I",
-            duration: "N/I",
-            startedBy: "N/I"
-        },
-        trend: "Cloudy"
+        current: "N/A",
+        latest: aggregator.data.builds.slice(0, maxNumberOfBuilds),
+        latestSuccesfull: aggregator.data.builds.find(build => build.status === "success")
     });
 
-    this.getBuildDetails = ({ buildNo }) => ({
-        buildNo: "N/I",
-        buildStatus: "success",
-        commitHash: "N/I",
-        timestamp: "N/I",
-        duration: "N/I",
-        startedBy: "N/I",
-        log: [],
-        artifacts: []
-    });
+    this.getBuildDetails = ({ buildNo }) => aggregator.data.builds.find(build => build.buildNo === buildNo);
 }
 
 
 
 function Aggregator(snapshot) {
     let data = snapshot || {
-        projects: []
+        current: {
+            buildNo: 12,
+            status: "building",
+            timestamp: "N/I"
+        },
+        builds: [{
+            buildNo: "N/I",
+            buildStatus: "success",
+            commitHash: "N/I",
+            timestamp: "N/I",
+            duration: "N/I",
+            startedBy: "N/I",
+            log: [],
+            artifacts: []
+        }]
     };
     Object.defineProperty(this, "data", { value: readonlyProxy(data), writable: false });
 
