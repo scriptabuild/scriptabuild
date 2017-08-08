@@ -30,22 +30,22 @@
     "deepmerge": "^1.5.0",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^0.11.2",
-    "html-loader": "^0.5.0",
+    "html-loader": "^0.5.1",
     "html-webpack-plugin": "^2.30.1",
     "rimraf": "^2.6.1",
     "style-loader": "^0.18.2",
     "url-loader": "^0.5.9",
-    "webpack": "^3.4.1",
-    "webpack-dev-server": "^2.6.1",
+    "webpack": "^3.5.1",
+    "webpack-dev-server": "^2.7.1",
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {
     "@aeinbu/bodyparser": "0.0.1",
     "@scriptabuild/awaitable": "^1.0.1",
-    "@scriptabuild/eventstore": "^1.2.3",
+    "@scriptabuild/eventstore": "^1.2.4",
     "commander": "^2.11.0",
     "cors": "^2.8.4",
-    "express": "^4.15.3",
+    "express": "^4.15.4",
     "ws": "^3.1.0"
   }
 }

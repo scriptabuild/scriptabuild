@@ -3,16 +3,14 @@ const { readonlyProxy } = require("@scriptabuild/eventstore");
 function DomainModel(dispatch, aggregator) {
 
     this.getProjectSummary = () => ({
-        current: {
-            buildNo: "N/I",
-            buildStatus: "N/I",
-            timestamp: "N/I"
-        },
+        //TODO: return ONLY the needed data for this operation
+        current: aggregator.data.current,
         latestCompleted: aggregator.data.builds[0],
         latestSuccesfull: aggregator.data.builds.find(build => build.status === "success")
     });
 
     this.getDetails = ({ maxNumberOfBuilds }) => ({
+        //TODO: return ONLY the needed data for this operation
         current: "N/A",
         latest: aggregator.data.builds.slice(0, maxNumberOfBuilds),
         latestSuccesfull: aggregator.data.builds.find(build => build.status === "success")
@@ -27,7 +25,7 @@ function Aggregator(snapshot) {
     let data = snapshot || {
         current: {
             buildNo: 12,
-            status: "building",
+            buildStatus: "building",
             timestamp: "N/I"
         },
         builds: [{

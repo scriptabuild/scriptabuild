@@ -74,9 +74,19 @@ async function getSystemModel() {
     return model;
 }
 
+function getProjectLogFolder(projectId) {
+    let projectFolder = path.resolve(configuration.systemFolder, "projects", projectId, "project-log");
+    return projectFolder;
+}
+
+async function ensureProjectLogFolder(projectId) {
+    let projectFolder = getProjectLogFolder(projectId);
+    await folder(projectFolder).ensure();
+}
+
 async function getProjectModel(projectId) {
-	let projectFolder = path.resolve(configuration.systemFolder, "projects", projectId, "project-log");
-	await folder(projectFolder).ensure();
+    let projectFolder = getProjectLogFolder(projectId);
+    // await folder(projectFolder).ensure();
     let store = await defineStore(projectFolder);
     let model = store.defineModel(projectModelDefinition);
 
@@ -103,7 +113,8 @@ app.get("/api/project-summary/:projectId",
                 let res = instance.getSummary();
                 resp.json(res);
             });
-        } catch (err) {
+        }
+        catch (err) {
             resp.sendStatus(404);
         }
     });
@@ -149,11 +160,11 @@ app.get("/api/project-log/:projectName/:buildNo?",
 
 app.post("/api/project-build/:projectname",
     function(req, resp) {
-		//TODO: start build
-		// clone or checkout
-		// update deps (npm, nuget etc)
-		// run scripts to build etc
-		// log status
+        //TODO: start build
+        // clone or checkout
+        // update deps (npm, nuget etc)
+        // run scripts to build etc
+        // log status
     });
 
 app.post("/api/hook/github/",
