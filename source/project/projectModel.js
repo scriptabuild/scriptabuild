@@ -17,6 +17,8 @@ function DomainModel(dispatch, aggregator) {
     });
 
     this.getBuildDetails = ({ buildNo }) => aggregator.data.builds.find(build => build.buildNo === buildNo);
+
+    this.getBuildLog = ({ buildNo }) => aggregator.data.builds.find(build => build.buildNo === buildNo).log;
 }
 
 

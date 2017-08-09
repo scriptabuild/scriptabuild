@@ -3,6 +3,8 @@ const readonlyProxy = require("@scriptabuild/readonlyproxy");
 function DomainModel(dispatch, aggregator) {
     this.getProjects = () => Object.entries(aggregator.data.projects).map(([id, {name}]) => ({id, name}));
 
+    this.getProject = ({projectId}) => aggregator.data.projects[projectId];
+    
     this.getActiveProjects = (numberOfDays) => ([{
         id: "...",
         name: "project 1",
