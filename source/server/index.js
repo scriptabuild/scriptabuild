@@ -48,7 +48,7 @@ app.get("/app/*", function(req, resp) {
 
 
 
-const { getSystemModel, doesProjectExist } = require("../system");
+const { getSystemModel, doesProjectExistMiddleware } = require("../system");
 const { ensureProjectLogFolder, getProjectModel } = require("../project");
 
 app.get("/api/project-list",
@@ -78,13 +78,9 @@ app.get("/api/project-summary/:projectId",
 
 
 app.get("/api/project-detail/:projectId",
+	doesProjectExistMiddleware,
     async function(req, resp) {
         let projectId = req.params.projectId;
-        if (!await doesProjectExist(projectId)) {
-            resp.sendStatus(404);
-            return;
-        }
-
         let projectModel = await getProjectModel(projectId);
         projectModel.withReadInstance(instance => {
             let res = instance.getDetails({ maxNumberOfBuilds: 8 });
@@ -94,13 +90,9 @@ app.get("/api/project-detail/:projectId",
 
 
 app.get("/api/build-detail/:projectId/:buildNo",
+	doesProjectExistMiddleware,
     async function(req, resp) {
         let projectId = req.params.projectId;
-        if (!await doesProjectExist(projectId)) {
-            resp.sendStatus(404);
-            return;
-        }
-
         let buildNo = req.params.buildNo;
         let projectModel = await getProjectModel(projectId);
         projectModel.withReadInstance(instance => {
@@ -111,13 +103,9 @@ app.get("/api/build-detail/:projectId/:buildNo",
 
 
 app.get("/api/build-log/:projectId/:buildNo?",
+	doesProjectExistMiddleware,
     async function(req, resp) {
         let projectId = req.params.projectId;
-        if (!await doesProjectExist(projectId)) {
-            resp.sendStatus(404);
-            return;
-        }
-
 		let buildNo = req.params.buildNo;
         let projectModel = await getProjectModel(projectId);
         projectModel.withReadInstance(instance => {

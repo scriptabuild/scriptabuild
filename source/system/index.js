@@ -16,12 +16,23 @@ async function doesProjectExist(projectId) {
     return model.withReadInstance(instance => !!instance.getProject({ projectId }));
 }
 
+async function doesProjectExistMiddleware(req, resp, next){
+    let projectId = req.params.projectId;
+    if (!await doesProjectExist(projectId)) {
+        resp.sendStatus(404);
+        return;
+    }
+
+    await next(req, resp);
+}
+
 async function ensureProject(projectId) {
     //TODO:
 }
 
 module.exports = {
     getSystemModel,
-    doesProjectExist,
+    // doesProjectExist,
+    doesProjectExistMiddleware,
     ensureProject
 }
