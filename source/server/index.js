@@ -120,7 +120,7 @@ app.post("/api/project-build/:projectId",
         let projectId = req.params.projectId;
         await ensureProject(projectId);
 		
-		ensureProjectLogFolder(projectId);
+		await ensureProjectLogFolder(projectId);
         //TODO: start build
         // clone or checkout
         // update deps (npm, nuget etc)

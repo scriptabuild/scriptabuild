@@ -27,7 +27,15 @@ async function doesProjectExistMiddleware(req, resp, next){
 }
 
 async function ensureProject(projectId) {
-    //TODO:
+    let model = await getSystemModel();
+    model.withReadWriteInstance((instance, readyToCommit) => {
+        if(instance.getProject(projectId)){
+            // project exists
+            return;
+        }
+        instance.setProject(projectId, {name: projectId});
+        readyToCommit();
+    });
 }
 
 module.exports = {
