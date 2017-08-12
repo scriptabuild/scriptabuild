@@ -26,6 +26,17 @@ function folder(path) {
 
     return {
         async ensure() {
+            if (/^win/.test(process.platform)) {
+                try {
+                    await awaitable(cb => fs.mkdir(path, 0o777, cb));
+                    return;
+                }
+                catch (err) {
+                    throw new Error(".ensure() will not recursivly create missing folders on Windows yet. Please submit a pull request if you fix this!");
+	                //NOTE: On Windows, a file path will not start with /, but instead a drive letter or a UNC path. (Ie. C:, C:\ or \\)
+				}
+            }
+
             let lix = 0;
             while (lix != -1) {
                 try {
