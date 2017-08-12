@@ -5,3 +5,80 @@ body{
 	background-color: black;
 	color: white;
 }
+
+ul{
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-left: 0;
+	list-style-position: none;
+}
+
+:link,
+:visited{
+	color: inherit;
+	text-decoration: none;
+}
+:link:hover{
+	text-decoration: underline;
+}
+
+.prompt{
+	color: #aaa;
+}
+
+
+.status.unknown,
+.status.never.built{
+	color: #666;
+}
+.status.running {
+	color: #ffff00;
+}
+.status.ok{
+	color: #00ff00;
+}
+.status.failed{
+	color: #ff0000;
+}
+
+
+ul.log{
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    list-style: none;
+}
+.log .info{
+	color: #ffffff;
+}
+.log .error{
+	color: #ff0000;
+}
+
+
+.cursor{
+	background-color: #666;
+}
+.comment{
+	color: green;
+}
+button.link{
+	font-family: inherit;
+	font-size: inherit;
+	background-color:inherit;
+	border: none;
+	color: inherit;
+	padding: 0;
+}
+button.link:hover{
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+
+ul{
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-left: 0;
+	list-style: none;
+}

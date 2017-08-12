@@ -9,6 +9,13 @@
 </head>
 <body>
 	<p>Welcome to Scriptabuild server</p>
+	<p></p>
+	<ul data-bind="foreach: projects">
+		<li data-bind="text: name"></li>
+	</ul>
+	<p>[New project]</p>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
 	<script src="/app/index.js"></script>
 </body>
 </html>
