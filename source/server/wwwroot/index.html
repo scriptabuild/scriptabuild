@@ -11,7 +11,11 @@
 	<p>Welcome to Scriptabuild server</p>
 	<p></p>
 	<ul data-bind="foreach: projects">
-		<li data-bind="text: name"></li>
+		<li>
+			<span data-bind="text: name"></span>
+			<span data-bind="text: status, css: status" class="status"></span>
+			<button data-bind="click: buildProject" class="link">[build]</button>
+		</li>
 	</ul>
 	<p>[New project]</p>
 
