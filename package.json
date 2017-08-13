@@ -35,14 +35,14 @@
     "rimraf": "^2.6.1",
     "style-loader": "^0.18.2",
     "url-loader": "^0.5.9",
-    "webpack": "^3.5.2",
+    "webpack": "^3.5.4",
     "webpack-dev-server": "^2.7.1",
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {
     "@aeinbu/bodyparser": "0.0.1",
     "@scriptabuild/awaitable": "^1.0.1",
-    "@scriptabuild/eventstore": "^1.2.5",
+    "@scriptabuild/eventstore": "^1.3.0",
     "commander": "^2.11.0",
     "cors": "^2.8.4",
     "express": "^4.15.4",

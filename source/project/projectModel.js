@@ -1,50 +1,68 @@
 const { readonlyProxy } = require("@scriptabuild/eventstore");
 
-function DomainModel(dispatch, aggregator) {
+function DomainModel(dispatch, data) {
 
-    this.getProjectSummary = () => ({
-        //TODO: return ONLY the needed data for this operation
-        current: aggregator.data.current,
-        latestCompleted: aggregator.data.builds[0],
-        latestSuccesfull: aggregator.data.builds.find(build => build.status === "success")
-    });
+    this.getProjectSummary = () => {
+		let current = data.current;
+		let latestCompletedBuild = data.builds[0];
+		let latestSuccesfullBuild = data.builds.find(build => build.buildStatus === "success")
 
-    this.getDetails = ({ maxNumberOfBuilds }) => ({
-        //TODO: return ONLY the needed data for this operation
-        current: "N/A",
-        latest: aggregator.data.builds.slice(0, maxNumberOfBuilds),
-        latestSuccesfull: aggregator.data.builds.find(build => build.status === "success")
-    });
+		return {
+            current: { buildNo: current.buildNo, status: data.current.status },
+            latestCompleted: latestCompletedBuild && { buildNo: latestCompletedBuild.buildNo, status: latestCompletedBuild.buildStatus},
+            latestSuccesfull: latestSuccesfullBuild && { buildNo: latestSuccesfullBuild.buildNo, status: latestSuccesfullBuild.buildStatus}
+        }
+    };
 
-    this.getBuildDetails = ({ buildNo }) => aggregator.data.builds.find(build => build.buildNo === buildNo);
+    this.getProjectDetails = ({ maxNumberOfBuilds }) => {
+		let current = data.current;
+		let latestCompletedBuilds = data.builds.filter((build, index) => index < maxNumberOfBuilds);
+		let latestSuccesfullBuild = data.builds.find(build => build.buildStatus === "success")
 
-    this.getBuildLog = ({ buildNo }) => aggregator.data.builds.find(build => build.buildNo === buildNo).log;
+        return {
+            current: current,
+            latest: latestCompletedBuilds,
+            latestSuccesfull: latestSuccesfullBuild
+        };
+    };
+
+    this.getBuildDetails = ({ buildNo }) => data.builds.find(build => build.buildNo === buildNo);
+
+    this.getBuildLog = ({ buildNo }) => data.builds.find(build => build.buildNo === buildNo).log;
 }
 
 
 
-function Aggregator(snapshot) {
-    let data = snapshot || {
-        current: {
-            buildNo: 12,
-            buildStatus: "building",
-            timestamp: "N/I"
-        },
-        builds: [{
-            buildNo: "N/I",
-            buildStatus: "success",
-            commitHash: "N/I",
-            timestamp: "N/I",
-            duration: "N/I",
-            startedBy: "N/I",
-            log: [],
-            artifacts: []
-        }]
-    };
-    Object.defineProperty(this, "data", { value: readonlyProxy(data), writable: false });
+function Aggregator(data) {
+    // let data = snapshot || {
+    //     current: {
+    //         buildNo: 12,
+    //         buildStatus: "building",
+    //         timestamp: "N/I"
+    //     },
+    //     builds: [{
+    //         buildNo: "N/I",
+    //         buildStatus: "failed",
+    //         commitHash: "N/I",
+    //         timestamp: "N/I",
+    //         duration: "N/I",
+    //         startedBy: "N/I",
+    //         log: [],
+    //         artifacts: []
+    //     },{
+    //         buildNo: "N/I",
+    //         buildStatus: "success",
+    //         commitHash: "N/I",
+    //         timestamp: "N/I",
+    //         duration: "N/I",
+    //         startedBy: "N/I",
+    //         log: [],
+    //         artifacts: []
+    //     }]
+    // };
 
-    this.eventhandlers = {
-
+    this.eventHandlers = {
+		//TODO:
     }
 }
 
@@ -52,8 +70,9 @@ function Aggregator(snapshot) {
 
 const modelDefinition = {
     snapshotName: () => "project-details",
-    createDomainModel: (dispatch, aggregator) => new DomainModel(dispatch, aggregator),
-    createLogAggregator: (snapshot) => new Aggregator(snapshot)
+    initializeLogAggregatorData: () => ({}),
+    createLogAggregator: (data) => new Aggregator(data),
+    createDomainModel: (dispatch, data) => new DomainModel(dispatch, data)
 }
 
 
