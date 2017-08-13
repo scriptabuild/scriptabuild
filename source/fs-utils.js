@@ -45,7 +45,7 @@ function folder(path) {
                     await awaitable(cb => fs.mkdir(newFolder, 0o777, cb));
                 }
                 catch (err) {
-                    console.log("---", err);
+                    if(err.code != "EEXIST") throw err;
                 }
 
             }
