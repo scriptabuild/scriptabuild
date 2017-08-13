@@ -1,6 +1,3 @@
-const readonlyProxy = require("@scriptabuild/readonlyproxy");
-const clone = require("./clone");
-
 function DomainModel(dispatch, data) {
 	this.getProjects = () => {
 		return Object.entries(data.projects).map(([id, { name }]) => ({ id, name }));

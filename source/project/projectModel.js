@@ -1,5 +1,3 @@
-const { readonlyProxy } = require("@scriptabuild/eventstore");
-
 function DomainModel(dispatch, data) {
 
     this.getProjectSummary = () => {
