@@ -20,5 +20,8 @@
         "radix": "warn",
         "no-eval": "warn",
 		"no-with": "warn"
+	},
+	"globals": {
+		"ko": false
 	}
 }
