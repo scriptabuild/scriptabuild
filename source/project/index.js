@@ -16,7 +16,7 @@ async function ensureProjectLogFolder(projectId) {
 
 async function getProjectModel(projectId) {
     let projectFolder = getProjectLogFolder(projectId);
-    let store = await defineStore(projectFolder);
+    let store = defineStore(projectFolder);
     let model = store.defineModel(projectModelDefinition);
 
     return model;

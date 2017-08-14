@@ -68,7 +68,7 @@ function Aggregator(data) {
 
 const modelDefinition = {
     snapshotName: () => "project-details",
-    initializeLogAggregatorData: () => ({}),
+    initializeLogAggregatorData: () => ({current:{}, builds:[]}),
     createLogAggregator: (data) => new Aggregator(data),
     createDomainModel: (dispatch, data) => new DomainModel(dispatch, data)
 }
