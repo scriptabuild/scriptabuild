@@ -48,7 +48,7 @@ app.get("/app/*", function(req, resp) {
 
 
 
-const { getSystemModel, doesProjectExistMiddleware } = require("../system");
+const { getSystemModel, doesProjectExistMiddleware, ensureProject } = require("../system");
 const { ensureProjectLogFolder, getProjectModel } = require("../project");
 
 app.get("/api/project-list",
@@ -59,15 +59,15 @@ app.get("/api/project-list",
             resp.json(res);
         });
     });
-
-
+      
 app.get("/api/project-summary/:projectId",
+    doesProjectExistMiddleware,
     async function(req, resp) {
         try {
             let projectId = req.params.projectId;
             let projectModel = await getProjectModel(projectId);
             projectModel.withReadInstance(instance => {
-                let res = instance.getSummary();
+                let res = instance.getProjectSummary();
                 resp.json(res);
             });
         }
@@ -78,19 +78,19 @@ app.get("/api/project-summary/:projectId",
 
 
 app.get("/api/project-detail/:projectId",
-	doesProjectExistMiddleware,
+    doesProjectExistMiddleware,
     async function(req, resp) {
         let projectId = req.params.projectId;
         let projectModel = await getProjectModel(projectId);
         projectModel.withReadInstance(instance => {
-            let res = instance.getDetails({ maxNumberOfBuilds: 8 });
+            let res = instance.getProjectDetails({ maxNumberOfBuilds: 8 });
             resp.json(res);
         });
     });
 
 
 app.get("/api/build-detail/:projectId/:buildNo",
-	doesProjectExistMiddleware,
+    doesProjectExistMiddleware,
     async function(req, resp) {
         let projectId = req.params.projectId;
         let buildNo = req.params.buildNo;
@@ -103,13 +103,13 @@ app.get("/api/build-detail/:projectId/:buildNo",
 
 
 app.get("/api/build-log/:projectId/:buildNo?",
-	doesProjectExistMiddleware,
+    doesProjectExistMiddleware,
     async function(req, resp) {
         let projectId = req.params.projectId;
-		let buildNo = req.params.buildNo;
+        let buildNo = req.params.buildNo;
         let projectModel = await getProjectModel(projectId);
         projectModel.withReadInstance(instance => {
-            let res = instance.getBuildLog({buildNo});
+            let res = instance.getBuildLog({ buildNo });
 
             resp.json(res);
         });
@@ -118,14 +118,17 @@ app.get("/api/build-log/:projectId/:buildNo?",
 app.post("/api/project-build/:projectId",
     async function(req, resp) {
         let projectId = req.params.projectId;
-        await ensureProject(projectId);
-		
-		await ensureProjectLogFolder(projectId);
+
         //TODO: start build
+        await ensureProject(projectId); // in system
+        await ensureProjectLogFolder(projectId); // in project's folder
         // clone or checkout
         // update deps (npm, nuget etc)
         // run scripts to build etc
         // log status
+
+        resp.sendStatus(204);
+    
     });
 
 app.post("/api/hook/github/",
