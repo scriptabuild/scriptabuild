@@ -8,9 +8,9 @@ function DomainModel(dispatch, data) {
 	};
 
 	this.getActiveProjects = (numberOfDays) => ([{
-		id: "...",
-		name: "project 1",
-		description: ""
+		id: "N/I",
+		name: "N/I",
+		description: "N/I"
 	}]);
 
 	this.setProject = (projectId, project) => {
@@ -55,9 +55,9 @@ function Aggregator(data) {
 
 const modelDefinition = {
 	snapshotName: () => "system-configuration",
-	initializeLogAggregator: () => ({}),
-	createDomainModel: (dispatch, aggregator) => new DomainModel(dispatch, aggregator),
-	createLogAggregator: (snapshot) => new Aggregator(snapshot)
+	initializeLogAggregatorData: () => ({projects:{}}),
+	createLogAggregator: (data) => new Aggregator(data),
+	createDomainModel: (dispatch, data) => new DomainModel(dispatch, data)
 }
 
 
