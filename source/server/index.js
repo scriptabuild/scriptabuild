@@ -19,17 +19,17 @@ wss.broadcast = function broadcast(data) {
 };
 
 wss.on("connection", function connection(ws) {
-    const location = url.parse(ws.upgradeReq.url, true);
+    // const location = url.parse(ws.upgradeReq.url, true);
     // You might use location.query.access_token to authenticate or share sessions
     // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
     ws.on("message", function incoming(message) {
         console.log(`received: ${message}`);
         ws.send(`I got ${message}`);
-        wss.broadcast("this is a public message!!!")
+        // wss.broadcast("this is a public message!!!")
     });
 
-    ws.send("You have connected to scriptabuild!!!");
+    // ws.send("You have connected to scriptabuild!!!");
 });
 
 
@@ -114,20 +114,34 @@ app.get("/api/build-log/:projectId/:buildNo?",
             resp.json(res);
         });
     });
+        
 
 app.post("/api/project-build/:projectId",
     async function(req, resp) {
         let projectId = req.params.projectId;
+        let buildNo = 1;    //TODO: uid from client
+
+        resp.sendStatus(204);
 
         //TODO: start build
         await ensureProject(projectId); // in system
         await ensureProjectLogFolder(projectId); // in project's folder
-        // clone or checkout
-        // update deps (npm, nuget etc)
-        // run scripts to build etc
-        // log status
+        
+        let model = getProjectModel(projectId);
 
-        resp.sendStatus(204);
+        await model.withReadWriteInstance((instance, readyToCommit) => {
+            instance.startBuild({buildNo});
+            readyToCommit();
+        });
+        wss.broadcast({name: "buildStatusUpdated", data: {projectId, buildStatus: "building"}});
+        
+
+        await model.withReadWriteInstance((instance, readyToCommit) => {
+            instance.reportBuildProgress({buildNo, buildStatus: "failed"});
+            readyToCommit();
+        });
+        wss.broadcast({name: "buildStatusUpdated", data: {projectId, buildStatus: "failed"}});
+        
     
     });
 

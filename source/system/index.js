@@ -10,7 +10,7 @@ async function ensureFolder() {
     await folder(systemFolder).ensure();
 }
 
-async function getSystemModel() {
+function getSystemModel() {
     let systemFolder = path.resolve(configuration.systemFolder, "system-log");
     let store = defineStore(systemFolder);
     let model = store.defineModel(systemModelDefinition);
@@ -19,7 +19,7 @@ async function getSystemModel() {
 }
 
 async function doesProjectExist(projectId) {
-    let model = await getSystemModel();
+    let model = getSystemModel();
     return await model.withReadInstance(instance => !!instance.getProject( projectId ));
 }
 
@@ -35,7 +35,7 @@ async function doesProjectExistMiddleware(req, resp, next){
 
 async function ensureProject(projectId) {
     await ensureFolder();
-    let model = await getSystemModel();
+    let model = getSystemModel();
     await model.withReadWriteInstance((instance, readyToCommit) => {
         if(instance.getProject(projectId)){
             // project exists

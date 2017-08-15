@@ -28,10 +28,11 @@ ul{
 
 
 .status.unknown,
+.status.requesting.build,
 .status.never.built{
 	color: #666;
 }
-.status.running {
+.status.building {
 	color: #ffff00;
 }
 .status.ok{

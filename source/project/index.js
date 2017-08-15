@@ -14,13 +14,15 @@ async function ensureProjectLogFolder(projectId) {
     await folder(projectFolder).ensure();
 }
 
-async function getProjectModel(projectId) {
+function getProjectModel(projectId) {
     let projectFolder = getProjectLogFolder(projectId);
     let store = defineStore(projectFolder);
     let model = store.defineModel(projectModelDefinition);
 
     return model;
 }
+
+
 
 module.exports = {
     ensureProjectLogFolder,
