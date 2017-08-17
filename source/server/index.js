@@ -13,7 +13,7 @@ const wss = new WebSocket.Server({ server });
 
 wss.broadcast = function broadcast(data) {
     wss.clients.forEach(function each(client) {
-        console.log("WS send", JSON.stringify(data));
+        // console.log("WS send", JSON.stringify(data));
         client.send(JSON.stringify(data));
     });
 };
@@ -24,7 +24,7 @@ wss.on("connection", function connection(ws) {
     // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
     ws.on("message", function incoming(message) {
-        console.log(`received: ${message}`);
+        // console.log(`received: ${message}`);
         ws.send(`I got ${message}`);
         // wss.broadcast("this is a public message!!!")
     });
@@ -89,37 +89,37 @@ app.get("/api/project-detail/:projectId",
     });
 
 
-app.get("/api/build-detail/:projectId/:buildNo",
+app.get("/api/build-detail/:projectId/:buildId",
     doesProjectExistMiddleware,
     async function(req, resp) {
         let projectId = req.params.projectId;
-        let buildNo = req.params.buildNo;
+        let buildId = req.params.buildId;
         let projectModel = await getProjectModel(projectId);
         projectModel.withReadInstance(instance => {
-            let res = instance.getBuildDetails({ buildNo });
+            let res = instance.getBuildDetails({ buildId });
             resp.json(res);
         });
     });
 
 
-app.get("/api/build-log/:projectId/:buildNo?",
+app.get("/api/build-log/:projectId/:buildId?",
     doesProjectExistMiddleware,
     async function(req, resp) {
         let projectId = req.params.projectId;
-        let buildNo = req.params.buildNo;
+        let buildId = req.params.buildId;
         let projectModel = await getProjectModel(projectId);
         projectModel.withReadInstance(instance => {
-            let res = instance.getBuildLog({ buildNo });
+            let res = instance.getBuildLog({ buildId });
 
             resp.json(res);
         });
     });
         
 
-app.post("/api/project-build/:projectId",
+app.post("/api/project-build/:projectId/:buildId?",
     async function(req, resp) {
         let projectId = req.params.projectId;
-        let buildNo = 1;    //TODO: uid from client
+        let buildId = req.params.buildId;
 
         resp.sendStatus(204);
 
@@ -130,19 +130,27 @@ app.post("/api/project-build/:projectId",
         let model = getProjectModel(projectId);
 
         await model.withReadWriteInstance((instance, readyToCommit) => {
-            instance.startBuild({buildNo});
+            instance.startBuild({buildId});
             readyToCommit();
         });
-        wss.broadcast({name: "buildStatusUpdated", data: {projectId, buildStatus: "building"}});
+        wss.broadcast({name: "buildStatusUpdated", data: {projectId, buildId, status: "started", statusText: "build started"}});
         
 
         await model.withReadWriteInstance((instance, readyToCommit) => {
-            instance.reportBuildProgress({buildNo, buildStatus: "failed"});
+            instance.reportBuildProgress({buildId, status: "running", statusText: "doing something"});
             readyToCommit();
         });
-        wss.broadcast({name: "buildStatusUpdated", data: {projectId, buildStatus: "failed"}});
+        wss.broadcast({name: "buildStatusUpdated", data: {projectId, buildId, status: "running", statusText: "doing something"}});
+        wss.broadcast({name: "buildCompleted", data: {projectId, buildId, status: "started", statusText: "doing something"}});
         
-    
+
+        await model.withReadWriteInstance((instance, readyToCommit) => {
+            instance.buildComplete({buildId, didSucceed: true});            
+            readyToCommit();
+        });
+        wss.broadcast({name: "buildCompleted", data: {projectId, buildId, status: "succeeded", statusText: "build succeeded"}});
+        
+
     });
 
 app.post("/api/hook/github/",

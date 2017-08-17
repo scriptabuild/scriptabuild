@@ -27,15 +27,14 @@ ul{
 }
 
 
-.status.unknown,
-.status.requesting.build,
-.status.never.built{
+.status{
 	color: #666;
 }
-.status.building {
+.status.started,
+.status.running {
 	color: #ffff00;
 }
-.status.ok{
+.status.succeeded{
 	color: #00ff00;
 }
 .status.failed{

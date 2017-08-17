@@ -1,107 +1,99 @@
+const STATUS = require("./status");
+
 function DomainModel(dispatch, data) {
 
     this.getProjectSummary = () => {
-        let current = data.current;
-        let latestCompletedBuild = data.builds[0];
-        let latestSuccesfullBuild = data.builds.find(build => build.buildStatus === "success")
-
+        let builds = Object.keys(data.builds)
+            .sort()
+            .map(key => data.builds[key])
+            .map(({ buildId, status, statusText, timestamp }) => ({ buildId, status, statusText, timestamp }));
+        let current = builds[0];
+        let latestCompleted = builds.find(build => build.complete);
+        let latestSuccesfull = builds.find(build => build.complete && build.status === STATUS.succeeded);
         return {
-            current: { buildNo: current.buildNo, buildStatus: current.buildStatus },
-            latestCompleted: latestCompletedBuild && { buildNo: latestCompletedBuild.buildNo, buildStatus: latestCompletedBuild.buildStatus },
-            latestSuccesfull: latestSuccesfullBuild && { buildNo: latestSuccesfullBuild.buildNo, buildStatus: latestSuccesfullBuild.buildStatus }
+            current,
+            latestCompleted,
+            latestSuccesfull
         }
     };
 
     this.getProjectDetails = ({ maxNumberOfBuilds }) => {
-        let current = data.current;
-        let latestCompletedBuilds = data.builds.filter((build, index) => index < maxNumberOfBuilds);
-        let latestSuccesfullBuild = data.builds.find(build => build.buildStatus === "success")
-
-        return {
-            current: current,
-            latest: latestCompletedBuilds,
-            latestSuccesfull: latestSuccesfullBuild
-        };
+        // let builds = Object.keys(data.builds).sort().map(key => data.builds[key]);
+        // let current = builds[0];
+        // let latestCompleted = builds.filter(build => build.complete);
+        // let latestSuccesfull = data.builds.find(build => build.complete && build.buildStatus === "success");
+        // return {
+        //     current: current,
+        //     latest: latestCompletedBuilds,
+        //     latestSuccesfull: latestSuccesfullBuild
+        // };
     };
 
-    this.getBuildDetails = ({ buildNo }) => data.builds.find(build => build.buildNo === buildNo);
+    this.getBuildDetails = ({ buildId }) => data.builds.find(build => build.buildId === buildId);
 
-    this.getBuildLog = ({ buildNo }) => data.builds.find(build => build.buildNo === buildNo).log;
+    this.getBuildLog = ({ buildId }) => data.builds.find(build => build.buildId === buildId).log;
 
-    this.startBuild = ({ buildNo }) => {
+    this.startBuild = ({ buildId }) => {
         dispatch("buildStarted", {
-			buildNo,
-			buildStatus: "building",
+            buildId,
+            status: STATUS.started,
+            statusText: "building",
             timestamp: new Date().toISOString()
-		});
-		//TODO: raise external event => ws
+        });
+        //TODO: raise external event => ws
     }
 
-	this.reportBuildProgress = ({ buildNo, buildStatus }) => {
+    this.reportBuildProgress = ({ buildId, statusText }) => {
         dispatch("buildProgressReported", {
-			buildNo,
-			buildStatus,
+            buildId,
+            status: STATUS.started,
+            statusText,
             timestamp: new Date().toISOString()
-		});
-		//TODO: raise external event => ws		
+        });
+        //TODO: raise external event => ws		
+    }
+
+    this.buildComplete = ({ buildId, didSucceed }) => {
+        dispatch("buildCompleted", {
+            buildId,
+            status: didSucceed ? STATUS.succeeded : STATUS.failed,
+            statusText: didSucceed ? "Build successfull" : "Build failed",
+            timestamp: new Date().toISOString()
+        });
     }
 }
 
 
 
 function Aggregator(data) {
-    // let data = snapshot || {
-    //     current: {
-    //         buildNo: 12,
-    //         buildStatus: "building",
-    //         timestamp: "N/I"
-    //     },
-    //     builds: [{
-    //         buildNo: "N/I",
-    //         buildStatus: "failed",
-    //         commitHash: "N/I",
-    //         timestamp: "N/I",
-    //         duration: "N/I",
-    //         startedBy: "N/I",
-    //         log: [],
-    //         artifacts: []
-    //     },{
-    //         buildNo: "N/I",
-    //         buildStatus: "success",
-    //         commitHash: "N/I",
-    //         timestamp: "N/I",
-    //         duration: "N/I",
-    //         startedBy: "N/I",
-    //         log: [],
-    //         artifacts: []
-    //     }]
-    // };
 
     this.eventHandlers = {
-		onBuildStarted: ({buildNo, buildStatus, timestamp}) => {
-			data.current = {
-				buildNo,
-				buildStatus,
-				timestamp
-			}
-		},
+        onBuildStarted: ({ buildId, status, statusText, timestamp }) => {
+            data.builds[buildId] = { buildId, status, statusText, timestamp }
+        },
 
-		onBuildProgressReported: ({buildNo, buildStatus, timestamp}) => {
-			data.current = {
-				buildNo,
-				buildStatus,
-				timestamp
-			}
+        onBuildProgressReported: ({ buildId, status, statusText, timestamp }) => {
+            data.builds[buildId] = { buildId, status, statusText, timestamp }
+        },
 
-		}
-	}
+        onBuildCompleted: ({ buildId, status, statusText, timestamp }) => {
+            data.builds[buildId] = {
+                buildId,
+                status,
+                statusText,
+                isCompleted: true,
+                timestamp
+            };
+        }
+
+    }
 }
 
 
 
 const modelDefinition = {
     snapshotName: () => "project-details",
-    initializeLogAggregatorData: () => ({ current: { buildStatus: "unknown" }, builds: [] }),
+    initializeLogAggregatorData: () => ({ builds: {} }),
     createLogAggregator: (data) => new Aggregator(data),
     createDomainModel: (dispatch, data) => new DomainModel(dispatch, data)
 }

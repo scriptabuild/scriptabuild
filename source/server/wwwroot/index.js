@@ -15,7 +15,7 @@ let loadProject = (project) => {
     project.status = status;
     fetch(`/api/project-summary/${project.id}`)
         .then(getJsonOrFailOnHttpError)
-        .then(res => void(status(res.current.buildStatus)))
+        .then(res => void(status(res.current.status)))
         .catch(() => void(status("never built")));
 }
 
@@ -31,7 +31,8 @@ let loadProjects = (vm) => {
 }
 
 let buildProject = (project) => {
-	fetch(`/api/project-build/${project.id}`, {method: "post"})
+    let buildId = new Date().toISOString();
+	fetch(`/api/project-build/${project.id}/${buildId}`, {method: "post"})
 		.then(getEmptyOrFailOnHttpError)
 		.then(() => void(project.status("requesting build")))
 		.catch(() => void(project.status("request failed")));
@@ -48,7 +49,7 @@ exampleSocket.onmessage = function (incoming) {
   let event = JSON.parse(incoming.data);
   console.log("-> ws from server", event );
   let project = vm.projects().find(p => p.id == event.data.projectId);
-  project.status(event.data.buildStatus);
+  project.status(event.data.status);
 }
 
 
