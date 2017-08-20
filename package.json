@@ -8,6 +8,13 @@
     "scrab": "./dist/bundle.js"
   },
   "scripts": {
+    "clean": "rimraf dist/*",
+    "build-dev": "npm run clean && webpack --config webpack.build.config.js",
+    "prebuild": "npm run clean",
+    "build": "webpack -p --config webpack.build.config.js",
+    "prepublish": "npm run build",
+    "watch": "webpack --config webpack.build.config.js --watch",
+    "dev-server": "webpack-dev-server --config webpack.serve.config.js",
     "start": "node ./source/index.js server"
   },
   "repository": {

@@ -1,4 +1,3 @@
-console.log("Welcome to Scriptabuild server");
 
 let throwHttpError = (response) => {
     throw new Error(`Fetch(...) returned an error: ${response.status} ${response.statusText}`);

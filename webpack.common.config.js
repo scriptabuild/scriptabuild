@@ -5,8 +5,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 module.exports = {
 	entry: {
 		app:[
-			"./source/index.js",
-			"./source/index.css"
+			"./webapp-source/index.js",
+			"./webapp-source/index.css"
 		]
 	},
 	resolve: {
@@ -54,7 +54,7 @@ module.exports = {
 			}
 		}),
 		new HtmlWebpackPlugin({
-			template: "./source/index.html"
+			template: "./webapp-source/index.html"
 		})
 	]
 }

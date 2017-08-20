@@ -34,7 +34,7 @@ wss.on("connection", function connection(ws) {
 
 
 
-app.use("/app/", express.static(path.join(__dirname, "wwwroot")));
+app.use("/app/", express.static(path.resolve(__dirname, "../../dist")));
 
 app.use(cors());
 
@@ -43,7 +43,7 @@ app.get("/", function(req, resp) {
 });
 
 app.get("/app/*", function(req, resp) {
-    resp.sendFile(__dirname + "/wwwroot/index.html");
+    resp.sendFile(path.resolve(__dirname, "../../dist/index.html"));
 });
 
 
