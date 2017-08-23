@@ -1,3 +1,4 @@
+// const ReactDOM = require("react-dom");
 
 let throwHttpError = (response) => {
     throw new Error(`Fetch(...) returned an error: ${response.status} ${response.statusText}`);
@@ -61,3 +62,7 @@ ko.applyBindings(vm);
 loadProjects(vm);
 
 
+// ReactDOM.render(
+//     <p>Hello, world!</p>,
+//     document.getElementById('root')
+//   );
