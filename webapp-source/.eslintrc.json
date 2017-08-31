@@ -22,6 +22,6 @@
 		"no-with": "warn"
 	},
 	"globals": {
-		"ko": false
+		"React": true
 	}
 }
