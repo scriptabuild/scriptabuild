@@ -1,15 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-
-let throwHttpError = (response) => {
-    throw new Error(`Fetch(...) returned an error: ${response.status} ${response.statusText}`);
-}
-let getJsonOrFailOnHttpError = (response) => {
-    return response.ok ? response.json() : throwHttpError(response);
-};
-let getEmptyOrFailOnHttpError = (response) => {
-    return response.ok ? undefined : throwHttpError(response);
-};
+import {getJsonOrFailOnHttpError} from "./fetch-utils";
 
 export class ProjectList extends React.Component {
 	constructor(props) {

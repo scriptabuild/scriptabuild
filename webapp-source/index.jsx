@@ -45,22 +45,10 @@ exampleSocket.onmessage = function (incoming) {
 }
 
 
-// ko.applyBindings(vm);
-// loadProjects(vm);
-
-// renderPage([]);
-// fetch("/api/project-list")
-//     .then(getJsonOrFailOnHttpError)
-//     .then(renderPage)
-//     .catch(err => void(console.log("fetching all projects failed:", err)));
-
-// function renderPage(projects){
-    // console.log("***", projects)
-    ReactDOM.render(
-        <div>
-            <p>Welcome to scriptabuild</p>
-            <ProjectList />
-        </div>,
-        document.getElementById('root')
-    );
-// }
+ReactDOM.render(
+    <div>
+        <p>Welcome to scriptabuild</p>
+        <ProjectList />
+    </div>,
+    document.getElementById('root')
+);
