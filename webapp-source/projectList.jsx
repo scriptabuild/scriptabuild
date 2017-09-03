@@ -1,25 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import {getJsonOrFailOnHttpError} from "./fetch-utils";
+import { connect } from "react-redux";
 
-export class ProjectList extends React.Component {
-	constructor(props) {
-		super(props);
+import { ProjectSummary } from "./projectSummary";
 
-		this.state = {projects:[]};
-	}
+const View = ({projects}) => (
+	<ul>
+		{projects.map(project => (
+			<li key={project.id}><ProjectSummary project={project} /></li>
+		))}
+	</ul>
+);
 
-	componentDidMount() {
-		fetch("/api/project-list")
-			.then(getJsonOrFailOnHttpError)
-			.then(projects => this.setState({ projects }))
-			.catch(err => void (console.log("fetching all projects failed:", err)));
-	}
+const mapStateToProps = state => ({
+	projects: state.projects,
+});
 
-	render() {
-		return (
-			<ul>
-				{this.state.projects.map(project => <li key={project.id}>{project.name}</li>)}
-			</ul>);
-	}
-}
+const mapDispatchToProps = dispatch => ({
+});
+
+export const ProjectList = connect(mapStateToProps, mapDispatchToProps)(View);
