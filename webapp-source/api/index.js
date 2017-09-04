@@ -28,11 +28,11 @@ export function loadProject(projectId, dispatch) {
 
 export function buildProject(projectId, dispatch) {
     let buildId = new Date().toISOString();
+    dispatch(changeProjectState(projectId, "started", "requesting build"))
     fetch(`/api/project-build/${projectId}/${buildId}`, { method: "post" })
         .then(getEmptyOrFailOnHttpError)
-        .then(() => {
-            dispatch(changeProjectState(projectId, "started", "requesting build"))
-        })
+        // .then(() => {
+        // })
         .catch(() => {
             dispatch(changeProjectState(projectId, "failed", "build request failed"))
         });
