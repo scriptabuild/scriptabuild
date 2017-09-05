@@ -1,17 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { connect } from "react-redux";
+import classnames from "classnames";
 
 import { buildProject } from "../api";
 
-import { ProjectSummary } from "./ProjectSummary";
 
 const View = ({projects, buildProject}) => (
 	<ul>
 		{projects.map(project => (
 			<li key={project.id}>
-				<ProjectSummary project={project} />
-				<button onClick={() => buildProject(project.id)}>[build]</button>
+				{project.name}
+				&nbsp;
+				<span className={classnames("status", project.status)}>{project.statusText}</span>
+				&nbsp;
+				<button onClick={() => buildProject(project.id)}>build</button>
 			</li>
 		))}
 	</ul>

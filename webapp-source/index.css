@@ -72,5 +72,24 @@ button.link:hover{
 	color: green;
 }
 
+button::before{
+	content:'['
+}
 
+button::after{
+	content:']'
+}
 
+button{
+	font-family: inherit;
+	font-size: inherit;
+	background-color:inherit;
+	border: none;
+	color: inherit;
+	padding: 0;
+}
+
+button:hover{
+	text-decoration: underline;
+	cursor: pointer;
+}
