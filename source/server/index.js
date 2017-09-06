@@ -1,6 +1,10 @@
 const http = require("http");
 // const url = require("url");
-const path = require("path")
+const path = require("path");
+const transform = require("../system/transform");
+
+// const {spawn} = require('child_process');
+// const spawnargs = require('spawn-args');
 
 const express = require("express");
 const cors = require("cors");
@@ -135,6 +139,47 @@ app.post("/api/project-build/:projectId/:buildId?",
         });
         wss.broadcast({name: "buildStatusUpdated", data: {projectId, buildId, status: "started", statusText: "build started"}});
         
+        let dictionary = {
+            repositorrooturl: "https://github.com/scriptabuild",
+            repositoryname: "eventstore",
+            repositorurl: "%repositorrooturl%/%repositoryname%.git",
+            tempfolder: "/usr/arjan/dev/scriptabuild/temp",
+            projectrootfolder: "%tempfolder%/%repositoryname%",
+            checkoutfolder: "%projectrootfolder%/checkout",
+        }
+
+        let transFn = obj => transform(obj, dictionary);
+
+        let gitCleanTask = { cmd: "git", args: ['clean', "--force"], options: { cwd: "%checkoutfolder%" } };
+        let gitPullTask = { cmd: "git", args: ['pull'], options: { cwd: "%checkoutfolder%" } };
+        let gitCloneTask = { cmd: "git", args: ['clone', "%repositorurl%", "%checkoutfolder%"], options: { cwd: "%projectrootfolder%" } };
+        
+        console.log("***", gitCleanTask, transFn(gitCleanTask));
+        console.log("***", gitPullTask, transFn(gitPullTask));
+        console.log("***", gitCloneTask, transFn(gitCloneTask));
+
+        // TODO: git clone or git checkout
+        // does "%checkoutfolder%/.git" exist,
+
+        // yes: move to %checkoutfolder% folder
+        // { cmd: "git", args: ['clean', "--force"], options: { cwd: "%checkoutfolder%" } }
+        // { cmd: "git", args: ['fetch'], options: { cwd: "%checkoutfolder%" } }
+            
+        // no: stay in %projectrootfolder% folder
+        // { cmd: "git", args: ['clone', project.source.url, "%checkoutfolder%"], options: { cwd: "%projectrootfolder%" } }
+			
+        // { cmd: "git", args: ['checkout', pathspec], options: { cwd: "%build%" } }
+
+        // Get commithash and branchname from git
+				// exec("git rev-parse --short HEAD", { cwd: ctx.paths.build }, function (err, stdout, stderr) {
+				// 	let commitHash = stdout.split('\n').join('');
+				// 	exec("git rev-parse --abbrev-ref HEAD", { cwd: ctx.paths.build }, function (err, stdout, stderr) {
+				// 		let branch = stdout.split('\n').join('');
+				// 		setBuildSettingsSync(ctx.paths.sandbox, ctx.paths.buildNo, {commitHash, branch});
+				// 	});
+				// })
+				
+
 
         await model.withReadWriteInstance((instance, readyToCommit) => {
             instance.reportBuildProgress({buildId, status: "running", statusText: "doing something"});
@@ -143,6 +188,7 @@ app.post("/api/project-build/:projectId/:buildId?",
         wss.broadcast({name: "buildStatusUpdated", data: {projectId, buildId, status: "running", statusText: "doing something"}});
         wss.broadcast({name: "buildCompleted", data: {projectId, buildId, status: "started", statusText: "doing something"}});
         
+        // TODO: run build script in %checkoutfolder% or in %projectfolder% ?
 
         await model.withReadWriteInstance((instance, readyToCommit) => {
             instance.buildComplete({buildId, didSucceed: true});            
