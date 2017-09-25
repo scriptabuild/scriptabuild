@@ -2,7 +2,7 @@ const http = require("http");
 // const url = require("url");
 const path = require("path");
 const transform = require("../system/transform");
-
+const executeTask = require("../system/executeTask");
 // const {spawn} = require('child_process');
 // const spawnargs = require('spawn-args');
 
@@ -143,7 +143,7 @@ app.post("/api/project-build/:projectId/:buildId?",
             repositorrooturl: "https://github.com/scriptabuild",
             repositoryname: "eventstore",
             repositorurl: "%repositorrooturl%/%repositoryname%.git",
-            tempfolder: "/usr/arjan/dev/scriptabuild/temp",
+            tempfolder: "/Users/arjan/dev/scriptabuild/temp/projects/",
             projectrootfolder: "%tempfolder%/%repositoryname%",
             checkoutfolder: "%projectrootfolder%/checkout",
         }
@@ -158,6 +158,7 @@ app.post("/api/project-build/:projectId/:buildId?",
         console.log("***", gitPullTask, transFn(gitPullTask));
         console.log("***", gitCloneTask, transFn(gitCloneTask));
 
+        await executeTask(gitCloneTask, {transFn});
         // TODO: git clone or git checkout
         // does "%checkoutfolder%/.git" exist,
 
